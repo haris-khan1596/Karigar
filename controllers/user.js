@@ -2,6 +2,10 @@ const User = require("../models/User");
 const yup = require("yup");
 const { createTokenForUser } = require("../services/authentication");
 
+const getAllUsers = async (req, res) => {
+    const users = await User.find();
+    return res.json(users);
+}
 const signupUser = async (req, res) => {
     if (!req.body) {
         return res.status(400).json({
@@ -48,7 +52,7 @@ const loginCustomer = async (req, res) => {
     }
 
     const schema = yup.object().shape({
-        email: yup.string().email().required(),
+        email: yup.string().required(),
         password: yup.string().required()
     });
     try {    
@@ -148,4 +152,4 @@ const loginAdmin = async (req, res) => {
         });
       }
 }
-module.exports = {signupUser, loginCustomer, loginWorker, loginAdmin};
+module.exports = {signupUser, loginCustomer, loginWorker, loginAdmin, getAllUsers};

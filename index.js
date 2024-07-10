@@ -1,6 +1,8 @@
 const express = require('express');
 const {connectMongodb} = require('./conn');
 const {logRequest} = require('./middlewares');
+const swaggerUi = require('swagger-ui-express');
+const swaggerFile = require('./swagger-output.json');
 const app = express();
 const port = process.env.PORT || 8000;
 const userRoutes = require('./routes/user');
@@ -13,6 +15,7 @@ app.use(logRequest);
 // MongoDB connection
 connectMongodb(process.env.MONGO_DB_URI || 'mongodb://localhost:27017/facile');
 
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 app.use('/api/user', userRoutes);
 // Define a simple route
 app.get('/', (req, res) => {
