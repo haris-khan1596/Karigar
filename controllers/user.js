@@ -62,6 +62,7 @@ const loginCustomer = async (req, res) => {
             message: error.message,
         });
     }
+    const {email, password} = req.body;
     try {
         const {user,token} = await User.matchPasswordAndGenerateToken(email, password);
         if (user.role === "CUSTOMER") {
@@ -98,6 +99,7 @@ const loginWorker = async (req, res) => {
             message: error.message,
         });
     }
+    const {email, password} = req.body;
     try {
         const {user,token} = await User.matchPasswordAndGenerateToken(email, password);
         if (user.role === "WORKER") {
@@ -134,6 +136,7 @@ const loginAdmin = async (req, res) => {
             message: error.message,
         });
     }
+    const {email, password} = req.body;
     try {
         const {user,token} = await User.matchPasswordAndGenerateToken(email, password);
         if (user.role === "ADMIN") {
