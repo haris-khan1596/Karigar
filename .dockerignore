@@ -3,7 +3,6 @@ node_modules
 
 # Ignore log files
 /log/
-package-lock.json
 /.git/
 
 # Ignore Docker-related files

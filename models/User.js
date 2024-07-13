@@ -29,6 +29,14 @@ const UserSchema = new mongoose.Schema({
     timestamps: true
 });
 
+UserSchema.methods.toJSON = function () {
+    const user = this;
+    const userObject = user.toObject();
+    delete userObject.password;
+    delete userObject.salt;
+    return userObject;
+}
+
 UserSchema.pre("save", function (next) {
     const user = this;
   
@@ -60,9 +68,10 @@ UserSchema.pre("save", function (next) {
   
       if (hashedPassword !== userProvidedHash)
         throw new Error("Incorrect Password");
-  
+      
       const token = createTokenForUser(user);
-      return {user,token};
+      const userData = user.toJSON();
+      return {"user":userData,token};
     }
   );
 
