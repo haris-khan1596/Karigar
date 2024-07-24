@@ -1,12 +1,15 @@
 const express = require('express');
 const {connectMongodb} = require('./conn');
-const {logRequest} = require('./middlewares');
+const {logRequest, isAuthenticated, isCustomer} = require('./middlewares');
 const swaggerUi = require('swagger-ui-express');
 const swaggerFile = require('./swagger-output.json');
 const cors = require('cors');
+require('dotenv').config();
 const app = express();
 const port = process.env.PORT || 8000;
 const userRoutes = require('./routes/user');
+const requestsRoutes = require('./routes/requests');
+const responseRoutes = require('./routes/response');
 
 // Middleware
 app.use(express.json());
@@ -19,7 +22,9 @@ connectMongodb(process.env.MONGO_DB_URI || 'mongodb://mongo:27017/facile');
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 app.use('/api/user', userRoutes);
-// Define a simple route
+app.use('/api/requests',isAuthenticated,isCustomer, requestsRoutes);
+app.use('/api/response',isAuthenticated, responseRoutes);
+
 app.get('/', (req, res) => {
     res.send('App is Working');
 });

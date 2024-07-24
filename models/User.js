@@ -24,6 +24,12 @@ const UserSchema = new mongoose.Schema({
         enum: ["CUSTOMER","WORKER", "ADMIN"],
         default: "CUSTOMER",
       },
+    worker_type: {
+        type: Array,
+        required: function() {
+          return this.role === 'WORKER';
+        }
+      },
     }, 
     {
     timestamps: true
