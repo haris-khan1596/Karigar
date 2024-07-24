@@ -22,7 +22,7 @@ connectMongodb(process.env.MONGO_DB_URI || 'mongodb://mongo:27017/facile');
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 app.use('/api/user', userRoutes);
-app.use('/api/requests',isAuthenticated,isCustomer, requestsRoutes);
+app.use('/api/requests',isAuthenticated, requestsRoutes);
 app.use('/api/response',isAuthenticated, responseRoutes);
 
 app.get('/', (req, res) => {
