@@ -10,6 +10,7 @@ const port = process.env.PORT || 8000;
 const userRoutes = require('./routes/user');
 const requestsRoutes = require('./routes/requests');
 const responseRoutes = require('./routes/response');
+const orderRoutes = require('./routes/order');
 
 // Middleware
 app.use(express.json());
@@ -24,6 +25,7 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerFile));
 app.use('/api/user', userRoutes);
 app.use('/api/requests',isAuthenticated, requestsRoutes);
 app.use('/api/response',isAuthenticated, responseRoutes);
+app.use('/api/order',isAuthenticated, orderRoutes);
 
 app.get('/', (req, res) => {
     res.send('App is Working');
