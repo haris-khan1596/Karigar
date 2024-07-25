@@ -748,7 +748,7 @@
     "/order/{id}": {
       "get": {
         "tags": ["Order"],
-        "summary": "Cancel an order",
+        "summary": "Get an order",
         "parameters": [
           {
             "name": "id",
