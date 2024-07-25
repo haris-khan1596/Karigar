@@ -55,9 +55,64 @@ async function createOrder(req, res) {
     
 }
 async function getAllOrders(req, res) {
-    const query = req.user.role === 'CUSTOMER' ? { customer: req.user._id } : { worker: req.user._id };
+    const query = req.user.role === 'CUSTOMER' ? { customer: req.user._id,status: "PENDING" } : { worker: req.user._id };
     const orders = await Order.find(query);
-    return res.status(200).json(orders);
+    const data = [];
+    if (!orders) {
+        return res.status(404).json({
+            message: "Orders not found!",
+        });
+    }
+
+    for (let i = 0; i < orders.length; i++) {
+        const order = orders[i];
+        
+        await Promise.all([order.populate('request'), order.populate('worker'), order.populate('response'),order.populate('customer')]); 
+        data[i] = {
+            "_id": order._id,
+            "status": order.status,
+            "description": order.request.description,
+            "time": order.request.time,
+            "worker": order.worker.name,
+            "category": order.request.category,
+            "address": order.request.address,
+            "location": order.request.location,
+            "customer": order.customer.name,
+            "ratings": order.response.ratings,
+            "work_type": order.request.work_type,
+            "orders": order.response.orders,
+            "worker_profile": order.worker.profile,
+        };
+        
+    }
+    console.log(orders);
+    return res.status(200).json(data);
+}
+
+async function getSingleOrder(req, res) {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+        return res.status(404).json({
+            message: "Order not found!",
+        });
+    }
+    await Promise.all([order.populate('request'), order.populate('worker'), order.populate('response'),order.populate('customer')]); 
+    const data = {
+        "_id": order._id,
+        "status": order.status,
+        "description": order.request.description,
+        "time": order.request.time,
+        "worker": order.worker.name,
+        "category": order.request.category,
+        "address": order.request.address,
+        "location": order.request.location,
+        "customer": order.customer.name,
+        "ratings": order.response.ratings,
+        "work_type": order.request.work_type,
+        "orders": order.response.orders,
+        "worker_profile": order.worker.profile,
+    };
+    return res.status(200).json(data);
 }
 
 async function cancelOrder(req,res) {
@@ -81,4 +136,4 @@ async function completeOrder(req,res) {
 }
 
 
-module.exports = { createOrder, getAllOrders, cancelOrder, completeOrder };
+module.exports = { createOrder, getAllOrders, cancelOrder, completeOrder, getSingleOrder };

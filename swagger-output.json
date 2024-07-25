@@ -150,6 +150,20 @@
           "address": {
             "type": "string",
             "example": "123 Main St, City, Country"
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "lat": {
+                "type": "number",
+                "example": 40.7128
+              },
+              "long": {
+                "type": "number",
+                "example": -74.006
+              }
+            },
+            "required": ["lat", "long"]
           }
         },
         "required": ["customer", "time", "description", "work_type", "address"]
@@ -160,6 +174,9 @@
           "message": {
             "type": "string",
             "example": "Request created successfully!"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CreateRequest"
           }
         }
       },
@@ -175,26 +192,55 @@
       "Order": {
         "type": "object",
         "properties": {
-          "customer": {
-            "type": "string"
-          },
-          "worker": {
-            "type": "string"
-          },
-          "request": {
-            "type": "string"
-          },
-          "response": {
-            "type": "string"
-          },
-          "work_type": {
-            "type": "string"
+          "_id": {
+            "type": "string",
+            "example": "66a0e115c8a5c7001629b680"
           },
           "status": {
-            "type": "string"
+            "type": "string",
+            "example": "PENDING"
           },
-          "payment_status": {
-            "type": "string"
+          "description": {
+            "type": "string",
+            "example": "Description of the work"
+          },
+          "time": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-07-21T19:00:00Z"
+          },
+          "category": {
+            "type": "string",
+            "example": "Household"
+          },
+          "address": {
+            "type": "string",
+            "example": "123 Main St, City, Country"
+          },
+          "location": {
+            "type": "string",
+            "example": "123 Main St, City, Country"
+          },
+          "customer": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "ratings": {
+            "type": "number",
+            "example": 4
+          },
+          "work_type": {
+            "type": "string",
+            "enum": ["PLUMBER", "ELECTRICIAN", "CARPENTER", "MECHANIC", "PAINTER", "OTHER"],
+            "example": "PLUMBER"
+          },
+          "orders": {
+            "type": "number",
+            "example": 40
+          },
+          "worker_profile": {
+            "type": "string",
+            "example": "Worker profile"
           }
         }
       },
@@ -683,6 +729,50 @@
           },
           "403": {
             "description": "Unauthorized access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      }
+    },
+    "/order/{id}": {
+      "get": {
+        "tags": ["Order"],
+        "summary": "Cancel an order",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Order ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Order not found",
             "content": {
               "application/json": {
                 "schema": {

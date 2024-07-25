@@ -15,6 +15,7 @@ const createRequest = async (req, res) => {
         work_type: yup.string().required().oneOf(["PLUMBER", "ELECTRICIAN", "CARPENTER", "MECHANIC", "PAINTER", "OTHER"]),
         category : yup.string(),
         address : yup.string().required(),
+        location : yup.object().shape({lat : yup.number().required(), long : yup.number().required()})
     });
     try {
         await schema.validate(req.body);
@@ -29,7 +30,7 @@ const createRequest = async (req, res) => {
     const result = await request.save();
     data["customer_name"] = req.user.name;
     await firestore.collection("requests").doc(`${result._id}`).set(data);
-    return res.status(201).json({"message": "Request created successfully!"});
+    return res.status(201).json({"message": "Request created successfully!","data":result});
 };
 
 const cancelRequest = async (req, res) => {

@@ -11,6 +11,18 @@ const ResponseSchema = new mongoose.Schema({
         ref: 'Request',
         required: true
     },
+    orders: {
+        type: Number
+    },
+    ratings: {
+        type: Number
+    },
+    profile: {
+        type: String
+    },
+    name: {
+        type: String
+    }
 }, {
     timestamps: true
 });

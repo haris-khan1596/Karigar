@@ -27,6 +27,16 @@ const RequestSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    location: {
+        lat:{
+            type: Number,
+            required: true
+        },
+        long:{
+            type: Number,
+            required: true
+        }
+    },
     status: {
         type: String,
         enum: ["COMPLETED","CANCELED", "PENDING"],

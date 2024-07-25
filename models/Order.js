@@ -16,6 +16,11 @@ const OrderSchema = new mongoose.Schema({
         ref: 'Request',
         required: true
     },
+    response: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Response',
+        required: true
+    },
     status: {
         type: String,
         enum: ["COMPLETED","CANCELED", "PENDING"],
@@ -51,7 +56,10 @@ const OrderSchema = new mongoose.Schema({
         default: "UNPAID"
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    toJSON: {
+        virtuals: true
+    }
 });
 
 OrderSchema.static('getTotalByStatus', async function(status) {
@@ -83,6 +91,7 @@ OrderSchema.methods.toJSON = function () {
     delete order.__v;
     order._id = order._id.toString();
     order.request = order.request.toString();
+    order.response = order.response.toString();
     order.customer = order.customer.toString();
     order.worker = order.worker.toString();
     return order;
