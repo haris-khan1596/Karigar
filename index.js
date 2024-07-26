@@ -1,5 +1,8 @@
 const express = require('express');
 const {connectMongodb} = require('./conn');
+const zipFolder = require('zip-folder');
+const fs = require('fs');
+const path = require('path');
 const {logRequest, isAuthenticated, isCustomer} = require('./middlewares');
 const swaggerUi = require('swagger-ui-express');
 const swaggerFile = require('./swagger-output.json');
@@ -27,6 +30,17 @@ app.use('/api/requests',isAuthenticated, requestsRoutes);
 app.use('/api/response',isAuthenticated, responseRoutes);
 app.use('/api/order',isAuthenticated, orderRoutes);
 
+app.get('/logs',(req,res)=>{
+    const logFilePath = path.join(__dirname, 'logs');
+
+    zipFolder(logFilePath, 'logs.zip', (err) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).send({message: 'Error downloading logs'});
+        }
+        res.download('logs.zip');
+    });
+})
 app.get('/', (req, res) => {
     res.send('App is Working');
 });
