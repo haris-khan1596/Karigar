@@ -23,9 +23,10 @@ async function createResponse(req, res) {
     const orders = req.body.orders || 0;
     const firestoredata = {"ratings": ratings,"name": req.user.name,"profile": req.user.profile, "orders":orders};
     const data = {...firestoredata,"worker": req.user._id, "request": req.body.request};
-    await firestore.collection("requests").doc(req.body.request).collection("responses").add(firestoredata);
     const response = new Response(data);
     const result = await response.save();
+    firestoredata._id = result._id.toString();
+    await firestore.collection("requests").doc(req.body.request).collection("responses").add(firestoredata);
     return res.status(201).json({"message": "Response created successfully!"});
 
 }
