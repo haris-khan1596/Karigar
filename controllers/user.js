@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const yup = require("yup");
 const { createTokenForUser } = require("../services/authentication");
+const Order = require("../models/Order");
 
 const getAllUsers = async (req, res) => {
     const users = await User.find();
@@ -103,6 +104,9 @@ const loginWorker = async (req, res) => {
     try {
         const {user,token} = await User.matchPasswordAndGenerateToken(email, password);
         if (user.role === "WORKER") {
+            const stats = await Order.getWorkerStats(user._id);
+            user.stars = stats.stars;
+            user.orders = stats.orders;
             return res.status(200).json({
               message: "User logged in successfully!",
               user,
