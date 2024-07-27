@@ -9,7 +9,7 @@ router.get("/:id", getSingleOrder);
 router.put("/cancel/:id", isCustomer, cancelOrder);
 router.put("/complete/:id", isWorker, completeOrder);
 router.put("/payment/sent/:id", isCustomer, sentPayment);
-router.put("/payment/paid/:id", isCustomer, paidPayment);
-router.put("/payment/reject/:id", isCustomer, unpaidPayment);
+router.put("/payment/paid/:id", isWorker, paidPayment);
+router.put("/payment/reject/:id", isWorker, unpaidPayment);
 
 module.exports = router
