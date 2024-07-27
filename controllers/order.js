@@ -48,7 +48,7 @@ async function createOrder(req, res) {
     const order = new Order(data);
     const result = await order.save();
 
-    await firestore.collection("Workers").doc(`${response.worker}`).collection("orders").doc(`${result._id}`).set(result.toJSON());
+    await Promise.all([firestore.collection("User").doc(`${response.worker}`).collection("orders").doc(`${result._id}`).set(result.toJSON()),firestore.collection("User").doc(`${data.customer}`).collection("orders").doc(`${result._id}`).set(result.toJSON())]);
     return res.status(201).json({
         message: "Order created successfully!",
     });
@@ -121,19 +121,63 @@ async function cancelOrder(req,res) {
             status: "CANCELLED",
         },
     });
-    await firestore.collection("Workers").doc(`${order.worker}`).collection("orders").doc(`${order._id}`).set({"status": "CANCELLED"});
+    await firestore.collection("User").doc(`${req.user.role==="CUSTOMER"?order.worker:order.customer}`).collection("orders").doc(`${order._id}`).set({"status": "CANCELLED"});
     return res.status(200).json({ message: "Order cancelled successfully!" });
 }
 
 async function completeOrder(req,res) {
+    const schema = yup.object().shape({
+        price: yup.number().required().min(1),
+    });
+    try{
+        await schema.validate(req.body);
+    }
+    catch(error){
+        return res.status(400).json({
+            message: error.message,
+        });
+    }
     const order = await Order.findByIdAndUpdate(req.params.id, {
         $set: {
-            status: "COMPLETED"
+            status: "COMPLETED",
+            price: req.body.price
         },
     });
-    await firestore.collection("Workers").doc(`${order.worker}`).collection("orders").doc(`${order._id}`).set({"status": "COMPLETED"});
+    await firestore.collection("User").doc(`${order.customer}`).collection("orders").doc(`${order._id}`).set({"status": "COMPLETED"});
     return res.status(200).json({ message: "Order completed successfully!" });
 }
 
+async function sentPayment(req,res){
+    const order = await Order.findByIdAndUpdate(req.params.id,
+        {
+            $set: {
+                payment_status: "SENT"
+            }
+        });
+    await firestore.collection("User").doc(`${order.worker}`).collection("orders").doc(`${order._id}`).set({"payment_status": "SENT"});
+    return res.status(200).json({ message: "Payment sent successfully!" });
+}
 
-module.exports = { createOrder, getAllOrders, cancelOrder, completeOrder, getSingleOrder };
+async function paidPayment(req,res){
+    const order = await Order.findByIdAndUpdate(req.params.id,
+        {
+            $set: {
+                payment_status: "PAID"
+            }
+        });
+    await firestore.collection("User").doc(`${order.customer}`).collection("orders").doc(`${order._id}`).set({"payment_status": "PAID"});
+    return res.status(200).json({ message: "Payment paid successfully!" });
+}
+async function unpaidPayment(req,res){
+    const order = await Order.findByIdAndUpdate(req.params.id,
+        {
+            $set: {
+                payment_status: "UNPAID"
+            }
+        });
+    await firestore.collection("User").doc(`${order.customer}`).collection("orders").doc(`${order._id}`).set({"payment_status": "UNPAID"});
+    return res.status(200).json({ message: "Payment unpaid successfully!" });
+}
+
+
+module.exports = { createOrder, getAllOrders, cancelOrder, completeOrder, getSingleOrder, sentPayment, paidPayment, unpaidPayment };

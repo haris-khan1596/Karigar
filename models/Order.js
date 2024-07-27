@@ -77,6 +77,38 @@ OrderSchema.static('getTotalByWorker', async function(worker) {
 
     return total[0].total
 })
+OrderSchema.static('getTotalOrdersByWorker', async function(worker) {
+    const total = await this.aggregate([
+        { $match: { worker } },
+        { $group: { _id: null, total: { $sum: 1 } } }])
+
+    return total[0].total
+})
+
+OrderSchema.static('getWorkerStats', async function(worker) {
+    try {
+        const total = await this.aggregate([
+            { $match: { worker } },
+            { $group: { _id: null, orders: { $sum: 1 }, star: { $avg: '$rating' } } }
+        ]);
+
+        if (total.length > 0) {
+            return { orders: total[0].orders, star: total[0].star };
+        } else {
+            return { orders: 0, star: 0 }; // or any other default values
+        }
+    } catch (err) {
+        console.error(err);
+        throw new Error('Failed to get worker stats');
+    }
+});
+OrderSchema.static('getTotalOrdersByCustomer', async function(customer) {
+    const total = await this.aggregate([
+        { $match: { customer } },
+        { $group: { _id: null, total: { $sum: 1 } } }])
+
+    return total[0].total
+})
 
 OrderSchema.static('getRatingWorker', async function(worker) {
     const total = await this.aggregate([
