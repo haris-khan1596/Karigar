@@ -85,7 +85,6 @@ async function getAllOrders(req, res) {
         };
         
     }
-    console.log(orders);
     return res.status(200).json(data);
 }
 
