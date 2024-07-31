@@ -47,8 +47,7 @@ async function createOrder(req, res) {
     };
     const order = new Order(data);
     const result = await order.save();
-
-    await Promise.all([firestore.collection("User").doc(`${response.worker}`).collection("orders").doc(`${result._id}`).set(result.toJSON()),firestore.collection("User").doc(`${data.customer}`).collection("orders").doc(`${result._id}`).set(result.toJSON())]);
+    await Promise.all([firestore.collection("requests").doc(`${request._id}`).delete(),firestore.collection("User").doc(`${response.worker}`).collection("orders").doc(`${result._id}`).set(result.toJSON()),firestore.collection("User").doc(`${data.customer}`).collection("orders").doc(`${result._id}`).set(result.toJSON())]);
     return res.status(201).json({
         message: "Order created successfully!",
     });

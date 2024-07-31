@@ -11,6 +11,11 @@ const ResponseSchema = new mongoose.Schema({
         ref: 'Request',
         required: true
     },
+    response_num:{
+        type:Number,
+        required:true,
+        autoIncrement: true
+    },
     orders: {
         type: Number
     },

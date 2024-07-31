@@ -18,6 +18,7 @@ const signupUser = async (req, res) => {
         name: yup.string().required(),
         email: yup.string().email().required(),
         password: yup.string().required(),
+        mobile_no: yup.string().required(),
         role: yup.string().oneOf(["CUSTOMER","WORKER", "ADMIN"]),
     });
     try {    
