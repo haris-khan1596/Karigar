@@ -145,6 +145,16 @@ async function completeOrder(req,res) {
     return res.status(200).json({ message: "Order completed successfully!" });
 }
 
+async function startedOrder(req,res) {
+    const order = await Order.findByIdAndUpdate(req.params.id, {
+        $set: {
+            status: "STARTED",
+        },
+    });
+    await firestore.collection("User").doc(`${order.customer}`).collection("orders").doc(`${order._id}`).set({"status": "STARTED"});
+    return res.status(200).json({ message: "Order started successfully!" });
+    }
+
 async function sentPayment(req,res){
     const order = await Order.findByIdAndUpdate(req.params.id,
         {
