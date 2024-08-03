@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const ResponseSchema = new mongoose.Schema({
     worker: {
         type: mongoose.Schema.Types.ObjectId,
@@ -10,11 +9,6 @@ const ResponseSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Request',
         required: true
-    },
-    response_num:{
-        type:Number,
-        required:true,
-        autoIncrement: true
     },
     orders: {
         type: Number
