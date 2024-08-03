@@ -29,8 +29,8 @@ const signupUser = async (req, res) => {
         });
     }
 
-    const userExists = await User.findOne({ email: req.body.email });
-    if (userExists) {
+    const userExists = await User.find({ $or: [{ email: req.body.email }, { mobile_no: req.body.mobile_no }] });
+    if (userExists.length > 0) {
         return res.status(400).json({
             message: "User already exists!",
         });
