@@ -27,8 +27,9 @@ const createRequest = async (req, res) => {
     const data = {
         ...req.body,"customer":req.user._id}
     const request = new Request(data);
-    const result = await request.save();
+    const [result, request_num] = await Promise.all([request.save(), Request.countDocuments({})]);
     data["customer_name"] = req.user.name;
+    data["order"] = request_num;
     await firestore.collection("requests").doc(`${result._id}`).set(data);
     return res.status(201).json({"message": "Request created successfully!","data":result});
 };

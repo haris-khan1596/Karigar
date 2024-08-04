@@ -47,14 +47,19 @@ async function createOrder(req, res) {
     };
     const order = new Order(data);
     const result = await order.save();
-    await Promise.all([firestore.collection("requests").doc(`${request._id}`).delete(),firestore.collection("User").doc(`${response.worker}`).collection("orders").doc(`${result._id}`).set(result.toJSON()),firestore.collection("User").doc(`${data.customer}`).collection("orders").doc(`${result._id}`).set(result.toJSON())]);
+    const responses = firestore.collection("requests").doc(`${request._id}`).collection("responses").get().then(snapshot => {
+        snapshot.docs.forEach(doc => {
+            doc.ref.delete();
+        });
+    });
+    await Promise.all([responses,firestore.collection("requests").doc(`${request._id}`).delete(),firestore.collection("User").doc(`${response.worker}`).collection("orders").doc(`${result._id}`).set(result.toJSON()),firestore.collection("User").doc(`${data.customer}`).collection("orders").doc(`${result._id}`).set(result.toJSON())]);
     return res.status(201).json({
         message: "Order created successfully!",
     });
     
 }
 async function getAllOrders(req, res) {
-    const query = req.user.role === 'CUSTOMER' ? { customer: req.user._id,status: "PENDING" } : { worker: req.user._id };
+    const query = req.user.role === 'CUSTOMER' ? { customer: req.user._id, $not: {payment_status: "PAID"} } : { worker: req.user._id };
     const orders = await Order.find(query);
     const data = [];
     if (!orders) {
@@ -119,7 +124,7 @@ async function cancelOrder(req,res) {
             status: "CANCELLED",
         },
     });
-    await firestore.collection("User").doc(`${req.user.role==="CUSTOMER"?order.worker:order.customer}`).collection("orders").doc(`${order._id}`).set({"status": "CANCELLED"});
+    await firestore.collection("User").doc(`${req.user.role==="CUSTOMER"?order.worker:order.customer}`).collection("orders").doc(`${order._id}`).update({"status": "CANCELLED"});
     return res.status(200).json({ message: "Order cancelled successfully!" });
 }
 
@@ -141,7 +146,7 @@ async function completeOrder(req,res) {
             price: req.body.price
         },
     });
-    await firestore.collection("User").doc(`${order.customer}`).collection("orders").doc(`${order._id}`).set({"status": "COMPLETED"});
+    await firestore.collection("User").doc(`${order.customer}`).collection("orders").doc(`${order._id}`).update({"status": "COMPLETED","price": req.body.price});
     return res.status(200).json({ message: "Order completed successfully!" });
 }
 
@@ -151,7 +156,7 @@ async function startedOrder(req,res) {
             status: "STARTED",
         },
     });
-    await firestore.collection("User").doc(`${order.customer}`).collection("orders").doc(`${order._id}`).set({"status": "STARTED"});
+    await firestore.collection("User").doc(`${order.customer}`).collection("orders").doc(`${order._id}`).update({"status": "STARTED"});
     return res.status(200).json({ message: "Order started successfully!" });
     }
 
@@ -162,7 +167,7 @@ async function sentPayment(req,res){
                 payment_status: "SENT"
             }
         });
-    await firestore.collection("User").doc(`${order.worker}`).collection("orders").doc(`${order._id}`).set({"payment_status": "SENT"});
+    await firestore.collection("User").doc(`${order.worker}`).collection("orders").doc(`${order._id}`).update({"payment_status": "SENT"});
     return res.status(200).json({ message: "Payment sent successfully!" });
 }
 
@@ -173,7 +178,7 @@ async function paidPayment(req,res){
                 payment_status: "PAID"
             }
         });
-    await firestore.collection("User").doc(`${order.customer}`).collection("orders").doc(`${order._id}`).set({"payment_status": "PAID"});
+    await firestore.collection("User").doc(`${order.customer}`).collection("orders").doc(`${order._id}`).update({"payment_status": "PAID"});
     return res.status(200).json({ message: "Payment paid successfully!" });
 }
 async function unpaidPayment(req,res){
@@ -183,7 +188,7 @@ async function unpaidPayment(req,res){
                 payment_status: "UNPAID"
             }
         });
-    await firestore.collection("User").doc(`${order.customer}`).collection("orders").doc(`${order._id}`).set({"payment_status": "UNPAID"});
+    await firestore.collection("User").doc(`${order.customer}`).collection("orders").doc(`${order._id}`).update({"payment_status": "UNPAID"});
     return res.status(200).json({ message: "Payment unpaid successfully!" });
 }
 
