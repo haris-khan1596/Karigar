@@ -924,7 +924,7 @@
         ]
       }
     },
-    "order/payment/sent/{id}":{
+    "/order/payment/sent/{id}":{
       "put": {
         "tags": ["Order Payment"],
         "summary": "Complete an order",
@@ -983,7 +983,7 @@
         ]
       }
     },
-    "order/payment/paid/{id}":{
+    "/order/payment/paid/{id}":{
       "put": {
         "tags": ["Order Payment"],
         "summary": "Complete an order",
@@ -1042,7 +1042,7 @@
         ]
       }
     },
-    "order/payment/reject/{id}":{
+    "/order/payment/reject/{id}":{
       "put": {
         "tags": ["Order Payment"],
         "summary": "Complete an order",
