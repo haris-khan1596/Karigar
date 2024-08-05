@@ -41,7 +41,7 @@ const OrderSchema = new mongoose.Schema({
         required: true,
         enum :["PLUMBER", "ELECTRICIAN", "CARPENTER", "MECHANIC", "PAINTER", "OTHER"]
     },
-    comment: {
+    feedback: {
         type: String,
         required: function() {
             return this.rating>0 && this.rating<5 && this.status === "COMPLETED" && this.payment_status === "PAID"

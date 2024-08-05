@@ -117,14 +117,58 @@ async function getSingleOrder(req, res) {
     };
     return res.status(200).json(data);
 }
-
+async function updateOrder(req, res) {
+    const order = await Order.findByIdAndUpdate(req.params.id, {
+        $set: req.body,
+    });
+    if (!order) {
+        return res.status(404).json({
+            message: "Order not found!",
+        });
+    }
+    return res.status(200).json({ message: "Order updated successfully!" });
+}
+async function feedbackOrder(req,res) {
+    const schema = yup.object().shape({
+        rating: yup.number().required().min(1).max(5),
+        feedback: yup.string().required(),
+    });
+    try{
+        await schema.validate(req.body);
+    }
+    catch(error){
+        return res.status(400).json({
+            message: error.message,
+        });
+    }
+    const order = await Order.findByIdAndUpdate(req.params.id, {
+        $set: {
+            rating: req.body.rating,
+            feedback: req.body.feedback
+        },
+    });
+    await firestore.collection("User").doc(`${order.customer}`).collection("orders").doc(`${order._id}`).update({"rating": req.body.rating,"feedback": req.body.feedback});
+    return res.status(200).json({ message: "Order feedback successfully!" });
+}
 async function cancelOrder(req,res) {
+    const schema = yup.object().shape({
+        reason: yup.string().required(),
+    });
+    try{
+        await schema.validate(req.body);
+    }
+    catch(error){
+        return res.status(400).json({
+            message: error.message,
+        });
+    }
     const order = await Order.findByIdAndUpdate(req.params.id, {
         $set: {
             status: "CANCELLED",
+            reason: req.body.reason
         },
     });
-    await firestore.collection("User").doc(`${req.user.role==="CUSTOMER"?order.worker:order.customer}`).collection("orders").doc(`${order._id}`).update({"status": "CANCELLED"});
+    await firestore.collection("User").doc(`${req.user.role==="CUSTOMER"?order.worker:order.customer}`).collection("orders").doc(`${order._id}`).update({"status": "CANCELLED","reason": req.body.reason});
     return res.status(200).json({ message: "Order cancelled successfully!" });
 }
 
@@ -193,4 +237,4 @@ async function unpaidPayment(req,res){
 }
 
 
-module.exports = { createOrder, getAllOrders, cancelOrder, completeOrder, getSingleOrder, sentPayment, paidPayment, unpaidPayment, startedOrder };
+module.exports = { createOrder, getAllOrders, cancelOrder, completeOrder, getSingleOrder, sentPayment, paidPayment, unpaidPayment, startedOrder, feedbackOrder, updateOrder };
