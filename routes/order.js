@@ -8,7 +8,7 @@ router.get("/", getAllOrders);
 router.get("/:id", getSingleOrder);
 // router.put("/:id", updateOrder);
 router.put("/feedback/:id", isCustomer, feedbackOrder);
-router.put("/cancel/:id", isCustomer, cancelOrder);
+router.put("/cancel/:id", cancelOrder);
 router.put("/start/:id", isWorker, startedOrder);
 router.put("/complete/:id", isWorker, completeOrder);
 router.put("/payment/sent/:id", isCustomer, sentPayment);
