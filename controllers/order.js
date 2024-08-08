@@ -59,7 +59,7 @@ async function createOrder(req, res) {
     
 }
 async function getAllOrders(req, res) {
-    const query = req.user.role === 'CUSTOMER' ? { customer: req.user._id, payment_status: { $ne: "PAID" } } : { worker: req.user._id };
+    const query = req.user.role === 'CUSTOMER' ? { customer: req.user._id, payment_status: { $ne: "PAID" } } : { worker: req.user._id, payment_status: { $ne: "PAID" }};
     const orders = await Order.find(query);
     const data = [];
     if (!orders) {
@@ -76,6 +76,7 @@ async function getAllOrders(req, res) {
             "_id": order._id,
             "status": order.status,
             "description": order.request.description,
+            "price":order.price || 0,
             "time": order.request.time,
             "worker": order.worker.name,
             "category": order.request.category,

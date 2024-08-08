@@ -15,6 +15,7 @@ const requestsRoutes = require('./routes/requests');
 const responseRoutes = require('./routes/response');
 const orderRoutes = require('./routes/order');
 
+app.use(require('express-status-monitor')());
 // Middleware
 app.use(express.json());
 app.use(logRequest);
