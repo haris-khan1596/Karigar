@@ -62,6 +62,142 @@ const OrderSchema = new mongoose.Schema({
     }
 });
 
+OrderSchema.static('getAllOrders', async function(userId) {
+    const agg = [
+        {
+          '$lookup': {
+            'from': 'requests', 
+            'localField': 'request', 
+            'foreignField': '_id', 
+            'as': 'request'
+          }
+        }, {
+          '$match': {
+            'request.0.time': {
+              '$gt': new Date(
+                new Date(Date.now() - 12 * 60 * 60 * 1000))
+            }, 
+            'payment_status': {
+              '$ne': 'PAID'
+            },
+            '$or': [
+              {
+                'worker': new mongoose.Types.ObjectId(userId) 
+              }, {
+                'customer': new mongoose.Types.ObjectId(userId)
+              }
+            ]
+          }
+        }, {
+          '$lookup': {
+            'from': 'responses', 
+            'localField': 'response', 
+            'foreignField': '_id', 
+            'as': 'response'
+          }
+        }, {
+          '$lookup': {
+            'from': 'users', 
+            'localField': 'customer', 
+            'foreignField': '_id', 
+            'as': 'customer'
+          }
+        }, {
+          '$lookup': {
+            'from': 'users', 
+            'localField': 'worker', 
+            'foreignField': '_id', 
+            'as': 'worker'
+          }
+        }
+      ];
+      
+      const orders = await this.aggregate(agg);
+
+      const data = [];
+      for (let order of orders) {
+        data.push({
+          "_id": order._id,
+          "status": order.status,
+          "description": order.request[0].description,
+          "price": order.price || 0,
+          "time": order.request[0].time,
+          "worker": order.worker[0].name,
+          "category": order.request[0].category,
+          "address": order.request[0].address,
+          "location": order.request[0].location,
+          "customer": order.customer[0].name,
+          "ratings": order.response[0]?.ratings,
+          "work_type": order.request[0].work_type,
+          "orders": order.response[0]?.orders,
+          "worker_profile": order.worker[0].profile,
+        });
+      }
+      return data
+})
+OrderSchema.static('getSingleOrder', async function(id) {
+    const agg = [
+        {
+            '$match': {
+                '_id': new mongoose.Types.ObjectId(id),
+            }
+        },
+        {
+            '$lookup': {
+                'from': 'requests',
+                'localField': 'request',
+                'foreignField': '_id',
+                'as': 'request',
+            }
+        },
+        {
+            '$lookup': {
+                'from': 'responses',
+                'localField': 'response',
+                'foreignField': '_id',
+                'as': 'response',
+            }
+        },
+        {
+            '$lookup': {
+                'from': 'users',
+                'localField': 'customer',
+                'foreignField': '_id',
+                'as': 'customer',
+            }
+        },
+        {
+            '$lookup': {
+                'from': 'users',
+                'localField': 'worker',
+                'foreignField': '_id',
+                'as': 'worker',
+            }
+        }
+    ];
+
+    const order = await this.aggregate(agg);
+    if (order.length === 0) {
+        return null
+    }
+    const data = {
+            "_id": order[0]._id,
+            "status": order[0].status,
+            "description": order[0].request[0].description,
+            "price": order[0].price || 0,
+            "time": order[0].request[0].time,
+            "worker": order[0].worker[0].name,
+            "category": order[0].request[0].category,
+            "address": order[0].request[0].address,
+            "location": order[0].request[0].location,
+            "customer": order[0].customer[0].name,
+            "ratings": order[0].response[0]?.ratings,
+            "work_type": order[0].request[0].work_type,
+            "orders": order[0].response[0]?.orders,
+            "worker_profile": order[0].worker[0].profile,
+        };
+    return data
+    });
 OrderSchema.static('getTotalByStatus', async function(status) {
     const total = await this.aggregate([
         { $match: { status } },
