@@ -23,7 +23,7 @@ const OrderSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ["COMPLETED","CANCELED", "PENDING","STARTED"],
+        enum: ["COMPLETED","CANCELLED", "PENDING","STARTED"],
         default: "PENDING",
         required: true
     },
@@ -33,7 +33,7 @@ const OrderSchema = new mongoose.Schema({
     reason: {
         type: String,
         required: function() {
-            return this.status === "CANCELED"
+            return this.status === "CANCELLED"
         }
     },
     work_type: {
