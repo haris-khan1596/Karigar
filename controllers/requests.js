@@ -27,10 +27,13 @@ const createRequest = async (req, res) => {
     const data = {
         ...req.body,"customer":req.user._id}
     const request = new Request(data);
-    const [result, request_num] = await Promise.all([request.save(), Request.countDocuments({})]);
+    // const result = await request.save();
     data["customer_name"] = req.user.name;
-    data["order"] = request_num;
-    await firestore.collection("requests").doc(`${result._id}`).set(data);
+    const d = new Date();
+    data["order"] = `${d.getHours()}${d.getMinutes()}`;
+    console.log('Data size:', Buffer.byteLength(JSON.stringify(data)), 'bytes');
+    console.log('Data structure:', JSON.stringify(data));
+    await Promise.all([firestore.collection("requests").doc(`${request._id}`).set(data), request.save()]);
     return res.status(201).json({"message": "Request created successfully!","data":result});
 };
 
