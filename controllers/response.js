@@ -21,7 +21,7 @@ async function createResponse(req, res) {
     }
     const ratings = req.body.ratings || 0;
     const orders = req.body.orders || 0;
-    const firestoredata = {"ratings": ratings,"name": req.user.name,"profile": req.user.profile, "orders":orders};
+    const firestoredata = {"ratings": ratings,"worker": req.user._id,"name": req.user.name,"profile": req.user.profile, "orders":orders};
     const data = {...firestoredata,"worker": req.user._id, "request": req.body.request};
     const response = new Response(data);
     const [result, response_num] = await Promise.all([response.save(), Response.countDocuments({})]);
