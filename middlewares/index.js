@@ -1,21 +1,4 @@
-const fs = require('fs');
-const path = require('path');
-const {getLogFilePath} = require('../utils');
-
 const {validateToken} = require('../services/authentication');
-
-const logFilePath = getLogFilePath();
-
-function logRequest(req, res, next) {
-    const requestLog = `${new Date().toISOString()} - ${req.method} - ${req.url} :\n ${req.ip} - ${JSON.stringify(req.headers)} - ${JSON.stringify(req.body)}\n`;
-
-    fs.appendFile(logFilePath, requestLog, (err) => {
-        if (err) {
-            console.error('Error writing log file:', err);
-        }
-    });
-    next();
-}
 
 
 function isAuthenticated(req, res, next) {
@@ -53,4 +36,4 @@ function isWorker(req, res, next) {
     }
 }
 
-module.exports = {logRequest, isAuthenticated, isAdmin, isCustomer, isWorker};
+module.exports = {isAuthenticated, isAdmin, isCustomer, isWorker};
