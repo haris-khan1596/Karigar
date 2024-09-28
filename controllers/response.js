@@ -27,6 +27,13 @@ async function createResponse(req, res) {
     const [result, response_num] = await Promise.all([response.save(), Response.countDocuments({})]);
     firestoredata._id = result._id.toString();
     firestoredata.order = response_num;
+    // Update the corresponding Request document by adding the responseId and workerId
+    await Request.findByIdAndUpdate(req.body.request, {
+        $push: {
+            responseIds: result._id,   
+            workerIds: req.user._id    
+        }
+    });
     await firestore.collection("requests").doc(req.body.request).collection("responses").add(firestoredata);
     return res.status(201).json({"message": "Response created successfully!"});
 
