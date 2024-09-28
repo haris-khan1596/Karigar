@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const log = require('../utils/logger');
 
 const OrderSchema = new mongoose.Schema({
     customer: {
@@ -63,6 +63,7 @@ const OrderSchema = new mongoose.Schema({
 });
 
 OrderSchema.static('getAllOrders', async function(userId) {
+    log('info', `Getting all orders for user ${userId}`);
     const agg = [
         {
           '$lookup': {
@@ -136,6 +137,7 @@ OrderSchema.static('getAllOrders', async function(userId) {
       return data
 })
 OrderSchema.static('getSingleOrder', async function(id) {
+    log('info', `Getting order with id ${id}`);
     const agg = [
         {
             '$match': {
@@ -178,6 +180,7 @@ OrderSchema.static('getSingleOrder', async function(id) {
 
     const order = await this.aggregate(agg);
     if (order.length === 0) {
+        log('error', `Order with id ${id} not found`);
         return null
     }
     const data = {
@@ -199,14 +202,16 @@ OrderSchema.static('getSingleOrder', async function(id) {
     return data
     });
 OrderSchema.static('getTotalByStatus', async function(status) {
+    log('info', `Getting total by status ${status}`);
     const total = await this.aggregate([
         { $match: { status } },
         { $group: { _id: null, total: { $sum: '$price' } } }])
 
     return total[0].total
-})
+});
 
 OrderSchema.static('getTotalByWorker', async function(worker) {
+    log('info', `Getting total by worker ${worker}`);
     const total = await this.aggregate([
         { $match: { worker } },
         { $group: { _id: null, total: { $sum: '$price' } } }])
@@ -214,14 +219,16 @@ OrderSchema.static('getTotalByWorker', async function(worker) {
     return total[0].total
 })
 OrderSchema.static('getTotalOrdersByWorker', async function(worker) {
+    log('info', `Getting total orders by worker ${worker}`);
     const total = await this.aggregate([
         { $match: { worker } },
         { $group: { _id: null, total: { $sum: 1 } } }])
 
     return total[0].total
-})
+});
 
 OrderSchema.static('getWorkerStats', async function(worker) {
+    log('info', `Getting worker stats for worker ${worker}`);
     try {
         const total = await this.aggregate([
             { $match: { worker } },
@@ -239,6 +246,7 @@ OrderSchema.static('getWorkerStats', async function(worker) {
     }
 });
 OrderSchema.static('getTotalOrdersByCustomer', async function(customer) {
+    log('info', `Getting total orders by customer ${customer}`);
     const total = await this.aggregate([
         { $match: { customer } },
         { $group: { _id: null, total: { $sum: 1 } } }])
@@ -247,6 +255,7 @@ OrderSchema.static('getTotalOrdersByCustomer', async function(customer) {
 })
 
 OrderSchema.static('getRatingWorker', async function(worker) {
+    log('info', `Getting rating for worker ${worker}`);
     const total = await this.aggregate([
         { $match: { worker } },
         { $group: { _id: null, total: { $avg: '$rating' } } }])
@@ -266,3 +275,4 @@ OrderSchema.methods.toJSON = function () {
 }
 
 module.exports = mongoose.model('Order', OrderSchema)
+
