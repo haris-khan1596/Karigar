@@ -5,6 +5,7 @@ const {firestore} = require("../conn.js");
 
 async function createResponse(req, res) {
     if (!req.body) {
+        log("error", "Content can not be empty!");
         return res.status(400).json({
             message: "Content can not be empty!",
         });
@@ -13,8 +14,10 @@ async function createResponse(req, res) {
         request: yup.string().required(),
     });
     try {
+        log("info", "Validating request in createRequest");
         await schema.validate(req.body);
     } catch (error) {
+        log("error", error.message);
         return res.status(400).json({
             message: error.message,
         });
@@ -28,6 +31,7 @@ async function createResponse(req, res) {
     firestoredata._id = result._id.toString();
     firestoredata.order = response_num;
     await firestore.collection("requests").doc(req.body.request).collection("responses").add(firestoredata);
+    log("info", "Response created successfully!");
     return res.status(201).json({"message": "Response created successfully!"});
 
 }
