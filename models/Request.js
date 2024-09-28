@@ -41,18 +41,7 @@ const RequestSchema = new mongoose.Schema({
         type: String,
         enum: ["COMPLETED","CANCELED", "PENDING"],
         default: "PENDING"
-    },
-    // responseIds to track all response IDs related to this request
-    responseIds: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Response'
-    }],
-    
-    // workerIds to track all worker IDs related to this request
-    workerIds: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    }]
+    }
 }, {
     timestamps: true
 });
