@@ -1,5 +1,4 @@
 const Response  = require("../models/Response");
-const Request  = require("../models/Request");
 const yup = require("yup");
 const {firestore} = require("../conn.js");
 
@@ -27,7 +26,12 @@ async function createResponse(req, res) {
     const [result, response_num] = await Promise.all([response.save(), Response.countDocuments({})]);
     firestoredata._id = result._id.toString();
     firestoredata.order = response_num;
-    await firestore.collection("requests").doc(req.body.request).collection("responses").add(firestoredata);
+    await firestore.runTransaction(async (transaction) => {
+        const request = await transaction.get(firestore.collection("requests").doc(req.body.request));
+        const workerIds = (request.data() || {}).workerIds || [];
+        transaction.update(firestore.collection("requests").doc(req.body.request), { "workerIds": [...workerIds, req.user._id] });
+        transaction.set(firestore.collection("requests").doc(req.body.request).collection("responses").doc(), firestoredata);
+    });
     return res.status(201).json({"message": "Response created successfully!"});
 
 }
