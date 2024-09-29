@@ -14,6 +14,7 @@ const userRoutes = require('./routes/user');
 const requestsRoutes = require('./routes/requests');
 const responseRoutes = require('./routes/response');
 const orderRoutes = require('./routes/order');
+const fileRoutes = require('./routes/fileRoutes');
 
 app.use(require('express-status-monitor')());
 // Middleware
@@ -30,6 +31,7 @@ app.use('/api/user', userRoutes);
 app.use('/api/requests',isAuthenticated, requestsRoutes);
 app.use('/api/response',isAuthenticated, responseRoutes);
 app.use('/api/order',isAuthenticated, orderRoutes);
+app.use('/api/files', fileRoutes);
 
 app.get('/logs',(req,res)=>{
     const logFilePath = path.join(__dirname, 'logs');
