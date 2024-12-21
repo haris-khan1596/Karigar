@@ -4,6 +4,7 @@ const { firestore } = require("../conn.js");
 
 async function createResponse(req, res) {
     if (!req.body) {
+        log("error", "Content can not be empty!");
         return res.status(400).json({
             message: "Content can not be empty!",
         });
@@ -12,8 +13,10 @@ async function createResponse(req, res) {
         request: yup.string().required(),
     });
     try {
+        log("info", "Validating request in createRequest");
         await schema.validate(req.body);
     } catch (error) {
+        log("error", error.message);
         return res.status(400).json({
             message: error.message,
         });
@@ -32,9 +35,11 @@ async function createResponse(req, res) {
         transaction.update(firestore.collection("requests").doc(req.body.request), { "workerIds": [...workerIds, req.user._id] });
         transaction.set(firestore.collection("requests").doc(req.body.request).collection("responses").doc(), firestoredata);
     });
+    log("info", "Response created successfully!");
     return res.status(201).json({ "message": "Response created successfully!" });
 
 }
+
 
 async function cancelResponse(req, res) {
     const response = await Response.findById(req.params.id);

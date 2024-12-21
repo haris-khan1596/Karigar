@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const { createHmac, randomBytes } = require("crypto");
 const { createTokenForUser } = require("../services/authentication");
+const log = require("../utils/logger");
 
 const UserSchema = new mongoose.Schema({
     name: {
@@ -49,6 +50,7 @@ UserSchema.methods.toJSON = function () {
 }
 
 UserSchema.pre("save", function (next) {
+  log("info", "Encrypting password");
     const user = this;
   
     if (!user.isModified("password")) return;
@@ -60,6 +62,7 @@ UserSchema.pre("save", function (next) {
   
     this.salt = salt;
     this.password = hashedPassword;
+    log("info", "Password encrypted successfully");
   
     next();
   });
@@ -67,8 +70,12 @@ UserSchema.pre("save", function (next) {
   UserSchema.static(
     "matchPasswordAndGenerateToken",
     async function (email, password) {
+      log("info", "Logging in user");
       const user = await this.findOne({ email });
-      if (!user) throw new Error("User not found!");
+      if (!user){ 
+        log("error", "User not found");
+        throw new Error("User not found!");
+      }
   
       const salt = user.salt;
       const hashedPassword = user.password;
@@ -77,8 +84,10 @@ UserSchema.pre("save", function (next) {
         .update(password)
         .digest("hex");
   
-      if (hashedPassword !== userProvidedHash)
+      if (hashedPassword !== userProvidedHash){
+        log("error", "Incorrect Password");
         throw new Error("Incorrect Password");
+      }
       
       const token = createTokenForUser(user);
       const userData = user.toJSON();
