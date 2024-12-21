@@ -10,7 +10,6 @@ const { LogtailTransport } = require("@logtail/winston");
 
 
 const logtail = new Logtail(process.env.LOGTAIL_TOKEN);
-console.log(process.env.LOGTAIL_TOKEN)
 
 const logtailTransport = new LogtailTransport(logtail, {
   level: "info",
