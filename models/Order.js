@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const log = require('../utils/logger');
 
 const OrderSchema = new mongoose.Schema({
