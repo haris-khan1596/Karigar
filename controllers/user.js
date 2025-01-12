@@ -68,9 +68,12 @@ const signupWorker = async (req, res) => {
         email: yup.string().email().required(),
         password: yup.string().required(),
         mobile_no: yup.string().required(),
+        profile: yup.string().required(),
         worker_details: yup.object().shape({
             worker_type: yup.array().required(),
             experience: yup.number().required(),
+            cnic_front: yup.string().required(),
+            cnic_back: yup.string().required(),
             location: yup.string(),
             description: yup.string()
         })
