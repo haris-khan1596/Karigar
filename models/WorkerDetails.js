@@ -21,8 +21,9 @@ const WorkerDetailsSchema = new mongoose.Schema({
     description: {
         type: String,
         required: false
-    },
-    
-      })
+    }
+  }, {
+    timestamps: true
+  });
 
 module.exports = mongoose.model('WorkerDetails', WorkerDetailsSchema)
