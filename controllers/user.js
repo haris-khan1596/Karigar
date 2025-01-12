@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const WorkerDetails = require("../models/WorkerDetails");
 const yup = require("yup");
 const { createTokenForUser } = require("../services/authentication");
 const Order = require("../models/Order");
@@ -22,7 +23,7 @@ const signupUser = async (req, res) => {
         email: yup.string().email().required(),
         password: yup.string().required(),
         mobile_no: yup.string().required(),
-        role: yup.string().oneOf(["CUSTOMER","WORKER", "ADMIN"]),
+        role: yup.string().oneOf(["CUSTOMER", "ADMIN"]),
     });
     try {    
         log("info", "Validating request in signupUser");
@@ -50,9 +51,60 @@ const signupUser = async (req, res) => {
     log("info", "User created successfully!");
     return res.json({
         message: "User created successfully!",
-        token
+        token,
+        result
     });
 }
+const signupWorker = async (req, res) => {
+    if (!req.body) {
+        log("error", "Content can not be empty!");
+        return res.status(400).json({
+            message: "Content can not be empty!",
+        });
+    }
+
+    const schema = yup.object().shape({
+        name: yup.string().required(),
+        email: yup.string().email().required(),
+        password: yup.string().required(),
+        mobile_no: yup.string().required(),
+        worker_details: yup.object().shape({
+            worker_type: yup.array().required(),
+            experience: yup.number().required(),
+            location: yup.string(),
+            description: yup.string()
+        })
+    });
+    try {
+        log("info", "Validating request in signupWorker");
+        await schema.validate(req.body);
+    } catch (error) {
+        log("error", error.message);
+        return res.status(400).json({
+            message: error.message,
+        });
+    }
+    const userExists = await User.find({ $or: [{ email: req.body.email }, { mobile_no: req.body.mobile_no }] });
+    if (userExists.length > 0) {
+        log("error", "User already exists!");
+        return res.status(400).json({
+            message: "User already exists!",
+        });
+    }
+
+    const user = new User(req.body);
+    user.role = "WORKER";
+    const worker_details = new WorkerDetails(req.body.worker_details);
+    const result = await Promise.all([user.save(), worker_details.save()]);
+    const token = createTokenForUser(user);
+    log("info", "Worker created successfully!");
+    return res.json({
+        message: "Worker created successfully!",
+        token,
+        result
+    });
+}
+
 const loginCustomer = async (req, res) => {
     if (!req.body) {
         log("error", "Content can not be empty!");
@@ -188,4 +240,4 @@ const loginAdmin = async (req, res) => {
         });
       }
 }
-module.exports = {signupUser, loginCustomer, loginWorker, loginAdmin, getAllUsers};
+module.exports = {signupUser, loginCustomer, loginWorker, loginAdmin, getAllUsers, signupWorker};
