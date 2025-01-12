@@ -18,6 +18,14 @@ const WorkerDetailsSchema = new mongoose.Schema({
         type: String,
         required: false
     },
+    cnic_front: {
+        type: String,
+        required: true
+    },
+    cnic_back: {
+        type: String,
+        required: true
+    },
     description: {
         type: String,
         required: false
