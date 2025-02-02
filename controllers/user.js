@@ -100,7 +100,6 @@ const signupWorker = async (req, res) => {
       message: 'User already exists!'
     })
   }
-
   user_data = {
     name: req.body.name,
     email: req.body.email,
