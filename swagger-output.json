@@ -43,6 +43,65 @@
         },
         "required": ["name", "email", "password", "role"]
       },
+      "WorkerSignup": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "example": "johndoe@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123"
+          },
+          "mobile_no": {
+            "type": "string",
+            "example": "1234567890"
+          },
+          "profile": {
+            "type": "string",
+            "example": "https://example.com/profile.jpg"
+          },
+          "worker_details": {
+            "type": "object",
+            "properties": {
+              "worker_type": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": ["PLUMBER", "ELECTRICIAN"]
+              },
+              "experience": {
+                "type": "number",
+                "example": 5
+              },
+              "cnic_front": {
+                "type": "string",
+                "example": "https://example.com/cnic_front.jpg"
+              },
+              "cnic_back": {
+                "type": "string",
+                "example": "https://example.com/cnic_back.jpg"
+              },
+              "location": {
+                "type": "string",
+                "example": "Lahore"
+              },
+              "description": {
+                "type": "string",
+                "example": "I am a plumber with 5 years of experience."
+              }
+            },
+            "required": ["worker_type", "experience", "cnic_front", "cnic_back"]
+          }
+        },
+        "required": ["name", "email", "password", "mobile_no", "profile", "worker_details"]
+      },
       "UserLogin": {
         "type": "object",
         "properties": {
@@ -296,6 +355,44 @@
         "responses": {
           "200": {
             "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user/signup/worker": {
+      "post": {
+        "tags": ["User"],
+        "summary": "Signup a new worker",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkerSignup"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Worker created successfully",
             "content": {
               "application/json": {
                 "schema": {
