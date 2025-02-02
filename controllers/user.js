@@ -100,11 +100,23 @@ const signupWorker = async (req, res) => {
       message: 'User already exists!'
     })
   }
-
-  const user = new User(req.body)
+  user_data = {
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+    mobile_no: req.body.mobile_no,
+    profile: req.body.profile
+  }
+  const user = new User(user_data)
+  const abc = await user.save()
   user.role = 'WORKER'
-  const worker_details = new WorkerDetails(req.body.worker_details)
-  const result = await Promise.all([user.save(), worker_details.save()])
+  worker_details_data = req.body.worker_details
+  worker_details_data.worker = user._id
+  const worker_details = new WorkerDetails(worker_details_data)
+  const xyz = await worker_details.save()
+
+  const result = await user.save()
+  result.worker_details = abc
   const token = createTokenForUser(user)
   log('info', 'Worker created successfully!')
   return res.json({
